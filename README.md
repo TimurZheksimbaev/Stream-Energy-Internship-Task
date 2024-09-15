@@ -47,7 +47,7 @@ Request:
   ]
 }
 ```
-- `/notes/list/`
+- `/notes/list/`\
 Response:
 ```json
 [
@@ -63,7 +63,7 @@ Response:
 ]
 ```
 -
-- `/notes/update/:note_id/`
+- `/notes/update/:note_id/`\
 Request:
 ```json
 {
@@ -75,8 +75,8 @@ Request:
   ]
 }
 ```
-- `/notes/delete/:note_id/`
-- `/notes/search_by_tags/`
+- `/notes/delete/:note_id/`\
+- `/notes/search_by_tags/`\
   Request:
 ```json
 {
@@ -86,7 +86,7 @@ Request:
   ]
 }
 ```
-- `/notes/search_by_title/`
+- `/notes/search_by_title/`\
 Request:
   some title
   
