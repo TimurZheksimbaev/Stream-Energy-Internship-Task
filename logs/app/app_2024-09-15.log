@@ -1,0 +1,3 @@
+2024-09-15 23:16:39,694 - INFO - /Users/timurzeksimbaev/Desktop/PyCharm Projects/StreamEnergyTask/logger.py - User: justin Action: Got current user
+2024-09-15 23:16:39,694 - INFO - /Users/timurzeksimbaev/Desktop/PyCharm Projects/StreamEnergyTask/logger.py - User: justin Action: Made request to get notes
+2024-09-15 23:16:39,710 - INFO - /Users/timurzeksimbaev/Desktop/PyCharm Projects/StreamEnergyTask/logger.py - User: justin Action: Got notes

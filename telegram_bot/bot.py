@@ -1,15 +1,13 @@
 from aiogram import Bot, Dispatcher, types
 from aiogram.types import Message
-from aiogram.fsm.state import State
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.storage.memory import MemoryStorage
 from config import TELEGRAM_BOT_TOKEN
 from logger import logger
 from api_client import get_notes, create_note, search_notes_by_tags, login_user, search_notes_by_title
-from aiogram import F
-
 from aiogram.fsm.state import StatesGroup, State
+
 bot = Bot(token=TELEGRAM_BOT_TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
 
@@ -37,12 +35,14 @@ class LoginState(StatesGroup):
 
 @dp.message(Command(commands=["login"]))
 async def login(message: types.Message, state: FSMContext):
+    logger.info(f"User {message.from_user.username} is trying to login.")
     await message.answer("Введите ваше имя пользователя.")
     await state.set_state(LoginState.waiting_for_username)
 
 # Получение имени пользователя
 @dp.message(LoginState.waiting_for_username)
 async def process_username(message: types.Message, state: FSMContext):
+    logger.info(f"User {message.from_user.username} entered username.")
     await state.update_data(username=message.text)
     await message.answer("Введите ваш пароль.")
     await state.set_state(LoginState.waiting_for_password)
@@ -50,6 +50,7 @@ async def process_username(message: types.Message, state: FSMContext):
 # Получение пароля и завершение логина
 @dp.message(LoginState.waiting_for_password)
 async def process_password(message: types.Message, state: FSMContext):
+    logger.info(f"User {message.from_user.username} entered password.")
     data = await state.get_data()
     username = data['username']
     password = message.text
@@ -63,6 +64,7 @@ async def process_password(message: types.Message, state: FSMContext):
     else:
         await message.answer("Неверные данные для входа. Попробуйте еще раз.")
         await state.clear()  # Очищаем состояние в случае неудачи, чтобы не застрять
+    logger.info(f"User {message.from_user.username} finished login.")
 
 
 
@@ -76,6 +78,7 @@ class NoteCreation(StatesGroup):
 
 @dp.message(Command(commands=["new_note"]))
 async def create_new_note_handler(message: Message, state: FSMContext):
+    logger.info(f"User {message.from_user.username} is trying to create a new note.")
     user_id = message.from_user.id
     token = user_tokens.get(user_id)
 
@@ -90,6 +93,7 @@ async def create_new_note_handler(message: Message, state: FSMContext):
 # Получение заголовка заметки
 @dp.message(NoteCreation.waiting_for_title)
 async def get_note_title(message: Message, state: FSMContext):
+    logger.info(f"User {message.from_user.username} entered note title.")
     await state.update_data(title=message.text)  # Сохраняем заголовок во временные данные FSM
     await message.answer("Теперь отправьте содержание заметки.")
     await state.set_state(NoteCreation.waiting_for_content)
@@ -98,6 +102,7 @@ async def get_note_title(message: Message, state: FSMContext):
 # Получение содержания заметки
 @dp.message(NoteCreation.waiting_for_content)
 async def get_note_content(message: Message, state: FSMContext):
+    logger.info(f"User {message.from_user.username} entered note content.")
     await state.update_data(content=message.text)  # Сохраняем содержание во временные данные FSM
     await message.answer("Отправьте теги для заметки через запятую.")
     await state.set_state(NoteCreation.waiting_for_tags)
@@ -106,6 +111,7 @@ async def get_note_content(message: Message, state: FSMContext):
 # Получение тегов и создание заметки
 @dp.message(NoteCreation.waiting_for_tags)
 async def get_note_tags(message: Message, state: FSMContext):
+    logger.info(f"User {message.from_user.username} entered note tags.")
     user_id = message.from_user.id
     token = user_tokens.get(user_id)
     tags = [str(tag.strip()) for tag in message.text.split(',')]
@@ -124,7 +130,7 @@ async def get_note_tags(message: Message, state: FSMContext):
         await message.answer("Произошла ошибка при создании заметки.")
 
     await state.clear()  # Очищаем состояние после завершения процесса
-
+    logger.info(f"User {message.from_user.username} finished creating a new note.")
 
 
 
@@ -132,6 +138,7 @@ async def get_note_tags(message: Message, state: FSMContext):
 
 @dp.message(Command(commands=["notes"]))
 async def get_user_notes(message: types.Message):
+    logger.info(f"User {message.from_user.username} is trying to get notes.")
     user_id = message.from_user.id
     token = user_tokens.get(user_id)
 
@@ -149,6 +156,7 @@ async def get_user_notes(message: types.Message):
     except Exception as e:
         logger.error(f"Error fetching notes: {str(e)}")
         await message.answer("Произошла ошибка при получении заметок.")
+    logger.info(f"User {message.from_user.username} finished getting notes.")
 
 
 """"""""""""""""""""""""""""""" Search notes by tag """""""""""""""""""""""""
@@ -157,11 +165,13 @@ class SearchByTags(StatesGroup):
 
 @dp.message(Command(commands=["search_note_by_tags"]))
 async def search_note_by_tags(message: types.Message, state: FSMContext):
+    logger.info(f"User {message.from_user.username} is trying to search notes by tags.")
     await message.answer("Введите теги для поиска заметок, разделяя их запятыми.")
     await state.set_state(SearchByTags.waiting_for_tags)
 
 @dp.message(SearchByTags.waiting_for_tags)
 async def get_notes_by_tags(message: types.Message, state: FSMContext):
+    logger.info(f"User {message.from_user.username} entered tags for search.")
     user_id = message.from_user.id
     tags = [tag.strip() for tag in message.text.split(',')]
     token = user_tokens.get(user_id)
@@ -183,6 +193,7 @@ async def get_notes_by_tags(message: types.Message, state: FSMContext):
         await message.answer("Произошла ошибка при поиске заметок.")
     finally:
         await state.clear()
+    logger.info(f"User {message.from_user.username} finished searching notes by tags.")
 
 
 
@@ -194,15 +205,21 @@ class SearchByTitle(StatesGroup):
 
 @dp.message(Command(commands=["search_note_by_title"]))
 async def search_note_by_title(message: types.Message, state: FSMContext):
+    logger.info(f"User {message.from_user.username} is trying to search notes by title.")
     await message.answer("Введите заголовок для поиска заметок.")
     await state.set_state(SearchByTitle.waiting_for_title)
 
 
 @dp.message(SearchByTitle.waiting_for_title)
 async def get_notes_by_title(message: types.Message, state: FSMContext):
+    logger.info(f"User {message.from_user.username} entered title for search.")
     user_id = message.from_user.id
     title = message.text.strip()
     token = user_tokens.get(user_id)
+
+    if len(title) > 100:
+        await message.answer("Заголовок слишком длинный! Введите заголовок до 100 символов.")
+        return
 
     if not token:
         await message.answer("Вы не авторизованы. Пожалуйста, выполните вход с помощью команды /login.")

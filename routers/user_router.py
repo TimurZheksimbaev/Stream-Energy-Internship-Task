@@ -1,29 +1,26 @@
 __all__ = ["user_router"]
-
-from typing import Dict
-
-from fastapi import Depends, APIRouter, HTTPException, status
+from fastapi import Depends, APIRouter
+from fastapi_limiter.depends import RateLimiter
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm.session import Session
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from database.init_database import get_db
-from CRUD.users import create_user, authenticate_user, get_user_by_username
+from CRUD.users import create_user, authenticate_user
 from schemas.user import CreateUser
-from loggers.logger import logger
-
+from logger import log_error, log_user_action
 
 user_router = APIRouter(
     prefix="/auth",
     tags=["Auth"],
 )
 
-@user_router.post("/register/")
+rate_limiter = RateLimiter(times=5, seconds=10)
+
+@user_router.post("/register/", dependencies=[Depends(rate_limiter)])
 async def register(user: CreateUser, db: AsyncSession = Depends(get_db)):
-    logger.info(f"Registering new user with username: {user.username}")
+    log_user_action(user.username, f"Made request to register")
     return await create_user(db, user)
 
 # Маршрут для логина (аутентификация)
-@user_router.post("/login/")
+@user_router.post("/login/", dependencies=[Depends(rate_limiter)])
 async def login(user: CreateUser, db: AsyncSession = Depends(get_db)):
-    logger.info(f"Logging in user with username: {user.password}")
+    log_user_action(user.username, f"Made request to login")
     return await authenticate_user(db, user.username, user.password)

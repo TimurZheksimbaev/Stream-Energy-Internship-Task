@@ -1,8 +1,8 @@
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime
 from sqlalchemy.sql import func
-from database.init_database import Base
 from sqlalchemy.dialects.postgresql import ARRAY
-
+from database.init_database import Base
+from sqlalchemy.orm import  relationship
 
 class User(Base):
     __tablename__ = 'users'
@@ -15,7 +15,7 @@ class Note(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, index=True)
     content = Column(Text)
-    tags = Column(ARRAY(String), index=True)  # Используем массив для хранения тегов
+    tags = Column(ARRAY(String), index=True)
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, onupdate=func.now())
     owner_id = Column(Integer, ForeignKey('users.id'))
