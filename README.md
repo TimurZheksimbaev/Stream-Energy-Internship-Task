@@ -11,7 +11,7 @@
 ```
 
 # Бэкенд имеет следующие эндпоинты
-- /auth/register \\
+- /auth/register
 Request:
 ```json
 {
@@ -19,7 +19,7 @@ Request:
   "password": "example"
 }
 ```
-- /auth/login \\
+- /auth/login
 Request:
 ```json
 {
@@ -36,9 +36,55 @@ Response:
 ```
 
 - /notes/create/
+Request:
+```json
+{
+  "title": "example",
+  "content": "exmaple",
+  "tags": [
+    "some",
+    "tags"
+  ]
+}
+```
 - /notes/list/
+Response:
+```json
+[
+  {
+    "title": "example",
+    "content": "exmaple",
+    "tags": [
+      "some",
+      "tags"
+    ]
+  },
+  ...
+]
+```
 - /notes/update/:note_id/
+Request:
+```json
+{
+  "title": "new_example",
+  "content": "new_exmaple",
+  "tags": [
+    "new_some",
+    "new_tags"
+  ]
+}
+```
 - /notes/delete/:note_id/
 - /notes/search_by_tags/
+  Request:
+```json
+{
+  "tags": [
+    "new_some",
+    "new_tags"
+  ]
+}
 - /notes/search_by_title/
+Request:
+  some title
   
