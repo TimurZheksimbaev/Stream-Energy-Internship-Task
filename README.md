@@ -85,6 +85,7 @@ Request:
     "new_tags"
   ]
 }
+```
 - `/notes/search_by_title/`
 Request:
   some title
