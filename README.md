@@ -11,7 +11,7 @@
 ```
 
 # Бэкенд имеет следующие эндпоинты
-- */auth/register*
+- `*/auth/register*`
 Request:
 ```json
 {
@@ -19,7 +19,7 @@ Request:
   "password": "example"
 }
 ```
-- */auth/login*
+- `*/auth/login*`
 Request:
 ```json
 {
